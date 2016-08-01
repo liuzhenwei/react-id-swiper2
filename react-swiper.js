@@ -3,7 +3,7 @@
     module.exports = factory(
       require('react'),
       require('react-dom'),
-      require('swiper'),
+      window && window.document ? require('swiper') : function(){},
       require('object-assign')
     );
   } else {
