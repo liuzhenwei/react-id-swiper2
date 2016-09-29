@@ -4,17 +4,19 @@
       require('react'),
       require('react-dom'),
       window && window.document ? require('swiper') : function(){},
-      require('object-assign')
+      require('object-assign'),
+      require('lodash.isequal')
     );
   } else {
     root.ReactIDangerousSwiper = factory(
       root.React,
       root.ReactDOM,
       root.Swiper,
-      root.objectAssign
+      root.objectAssign,
+      root.isEqual
     );
   }
-}(this, function (React, ReactDOM, Swiper, objectAssign) {
+}(this, function (React, ReactDOM, Swiper, objectAssign, isEqual) {
   'use strict';
 
   var defaultProps = {
@@ -32,11 +34,11 @@
     paginationTotalClass: 'swiper-pagination-total',
     paginationProgressbarClass: 'swiper-pagination-progressbar',
     buttonDisabledClass: 'swiper-button-disabled'
-  }
+  };
 
   var ReactIDangerousSwiper = React.createClass({
     displayName: 'ReactIDangerousSwiper',
-    // http://idangero.us/swiper/api/#.VwH7iRJ95hE
+
     propTypes: {
       initialSlide: React.PropTypes.number,
       direction: React.PropTypes.string,
@@ -194,9 +196,12 @@
     },
 
     componentDidUpdate: function () {
-      if(this.props.rebuildOnUpdate) {
-        this.swiper.destroy(true, true);
+      if(this.props.rebuildOnUpdate || this.updateReset === true ) {
+        if (this.swiper != null) {
+          this.swiper.destroy(true, true);
+        }
         this.swiper = new Swiper(ReactDOM.findDOMNode(this), objectAssign({}, this.props));
+        this.updateReset = false;
       }
     },
 
@@ -206,29 +211,32 @@
     },
 
     shouldComponentUpdate: function (nextProps) {
-      return nextProps.children !== this.props.children;
+      return !isEqual(nextProps.children, this.props.children);
     },
 
-    componentWillReceiveProps: function () {
-      if (this.swiper != null) {
-        this.swiper.destroy(true, true);
+    componentWillReceiveProps: function (nextProps) {
+      // 如果组件属性中包含回调函数，则只比较属性中的children，否则比较整个属性对象
+      var reset = this.props.propsFunction === true ? isEqual(nextProps.children, this.props.children) : isEqual(nextProps, this.props);
+      // 深度比较不相等时，重新初始化swiper对象
+      if( reset == false ){
+        // 设置在didupdate中重新初始化的标志
+        this.updateReset = true;        
       }
-      this.swiper = new Swiper(ReactDOM.findDOMNode(this), objectAssign({}, this.props));
     },
 
     _renderScrollBar: function () {
       if (!this.props.scrollbar) return false;
-      return React.createElement('div', { className: this.props.scrollbar.replace(/\./g, "") });
+      return React.createElement('div', { className: this.props.scrollbar.replace(/\./g, '') });
     },
 
     _renderNextButton: function() {
       if (!this.props.nextButton) return false;
-      return React.createElement('div', { className: this.props.nextButton.replace(/\./g, "") });
+      return React.createElement('div', { className: this.props.nextButton.replace(/\./g, '') });
     },
 
     _renderPrevButton: function() {
       if (!this.props.prevButton) return false;
-      return React.createElement('div', { className: this.props.prevButton.replace(/\./g, "") });
+      return React.createElement('div', { className: this.props.prevButton.replace(/\./g, '') });
     },
     
     render: function() {
