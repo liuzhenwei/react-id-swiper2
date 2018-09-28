@@ -242,7 +242,7 @@
     _renderPagination: function() {
       if (this.props.disablePagination === true) return false;
       return React.createElement('div', { className: 'swiper-pagination' });
-    }
+    },
     
     render: function() {
       var slideClass = this.props.slideClass;
