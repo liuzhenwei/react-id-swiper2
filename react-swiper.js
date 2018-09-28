@@ -238,6 +238,11 @@
       if (!this.props.prevButton) return false;
       return React.createElement('div', { className: this.props.prevButton.replace(/\./g, '') });
     },
+
+    _renderPagination: function() {
+      if (this.props.disablePagination === false) return false;
+      return React.createElement('div', { className: 'swiper-pagination' });
+    }
     
     render: function() {
       var slideClass = this.props.slideClass;
@@ -251,7 +256,7 @@
             return React.cloneElement(e, { className: [slideClass, e.props.className].join(' ') });
           })
         ),
-        React.createElement('div', { className: 'swiper-pagination' }),
+        this._renderPagination(),
         this._renderScrollBar(),
         this._renderNextButton(),
         this._renderPrevButton()
