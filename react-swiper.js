@@ -240,7 +240,7 @@
     },
 
     _renderPagination: function() {
-      if (this.props.disablePagination === false) return false;
+      if (this.props.disablePagination === true) return false;
       return React.createElement('div', { className: 'swiper-pagination' });
     }
     
